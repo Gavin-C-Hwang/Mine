@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default", file('simplemagic-1.6.jar'))

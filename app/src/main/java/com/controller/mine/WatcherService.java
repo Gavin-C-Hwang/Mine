@@ -98,20 +98,30 @@ public class WatcherService extends Service {
                         curBlog = MyUtil.hwangcheol1241AtGmailDotCom;
                     }else ;
 
-                    Thread.sleep(60000l);
+
+
+                    String boardItem = getBoardItem(contents[1]);
+                    String status = getSendTistoryResult(contents[0],boardItem);
+                    Set<String> set = pref.getStringSet("sendResult", new HashSet<String>());
+                    set.add(status+"("+i+")\n");
+                    editor.putStringSet("sendResult",set);
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                         sendNotification(curBlog.get("blogName"),urls[i],i);
                     }
-                    String boardItem = getBoardItem(contents[1]);
-                    getSendTistoryResult(contents[0],boardItem);
-
+                    Thread.sleep(20000l);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
+                    SharedPreferences.Editor editor = pref.edit();// editor에 put 하기
+                    Set<String> set = pref.getStringSet("sendResult", new HashSet<String>());
+                    set.add(e.getMessage() +"("+i+")\n");
                 }
+
             }
 
-
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                sendNotification("끝","끝",urls.length);
+            }
 
             return "";
         }

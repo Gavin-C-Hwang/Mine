@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent" >
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -9,24 +13,12 @@
     android:paddingTop="30dp">
 
     <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="22dp"
-        android:text="서비스"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="22dp"
-        android:layout_below="@+id/textView1"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="" />
 
     <TextView
         android:id="@+id/textView3"
@@ -35,8 +27,7 @@
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="22dp"
         android:layout_below="@+id/textView2"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text=""/>
 
     <TextView
         android:id="@+id/textView4"
@@ -45,8 +36,7 @@
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="22dp"
         android:layout_below="@+id/textView3"
-        android:text=""
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="" />
 
     <Button
         android:id="@+id/btnResetPref"
@@ -81,4 +71,13 @@
         android:layout_below="@+id/btnEndService"
         android:text=""
          />
+    <TextView
+        android:id="@+id/sendResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/blackImage"
+        android:text=""
+        />
 </RelativeLayout>
+</ScrollView>

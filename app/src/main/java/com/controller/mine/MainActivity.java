@@ -43,6 +43,16 @@ public class MainActivity extends AppCompatActivity {
         }
         tvBlackImage.setText(blackImageList);
 
+        TextView tvSendResult = (TextView)findViewById(R.id.sendResult);
+        Set<String> hs2 = pref.getStringSet("sendResult",new HashSet<String>());
+        Iterator<String> it2 = hs2.iterator();
+        String sendResultList = "";
+        while(it2.hasNext()){
+            sendResultList = sendResultList +", "+ it2.next();
+        }
+        tvSendResult.setText(sendResultList);
+
+
     }
 
     View.OnClickListener btnStartServiceListener = new View.OnClickListener() {
@@ -70,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("skdog87AtNaverDotCom",0);
             editor.putInt("hwangcheol1240AtGmailDotCom",0);
             editor.putInt("hwangcheol1241AtGmailDotCom",0);
-            //editor.putStringSet("blackImage",new HashSet<String>());
+            editor.putStringSet("sendResult",new HashSet<String>());
             editor.commit();
         }
     };

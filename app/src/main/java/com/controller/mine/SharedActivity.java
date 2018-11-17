@@ -47,6 +47,8 @@ import java.net.URLEncoder;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -125,6 +127,16 @@ public class SharedActivity extends Activity {
     View.OnClickListener ivListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+
+            SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
+            SharedPreferences.Editor editor = pref.edit();// editor에 put 하기
+            Set<String> hs = pref.getStringSet("blackImage",new HashSet<String>());
+            Document doc = Jsoup.parse(v.getContentDescription().toString());
+            String src = doc.select("img").attr("src");
+            hs.add(src);
+            editor.putStringSet("blackImage",hs);
+            editor.commit();
+
             Log.d("myTag",MyUtil.htmlCode);
             MyUtil.htmlCode = MyUtil.htmlCode.replace(v.getContentDescription().toString(),"");
             Log.d("myTag",MyUtil.htmlCode);

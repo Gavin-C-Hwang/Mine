@@ -8,6 +8,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -29,6 +33,15 @@ public class MainActivity extends AppCompatActivity {
         tv2.setText("tech-tech.tistory.com : "+pref.getInt("skdog87AtNaverDotCom",0)+"건");
         tv3.setText("70th.tistory.com : "+pref.getInt("hwangcheol1240AtGmailDotCom",0)+"건");
         tv4.setText("merl.tistory.com : "+pref.getInt("hwangcheol1241AtGmailDotCom",0)+"건");
+
+        TextView tvBlackImage = (TextView)findViewById(R.id.blackImage);
+        Set<String> hs = pref.getStringSet("blackImage",new HashSet<String>());
+        Iterator<String> it = hs.iterator();
+        String blackImageList = "";
+        while(it.hasNext()){
+            blackImageList = blackImageList +", "+ it.next();
+        }
+        tvBlackImage.setText(blackImageList);
 
     }
 
@@ -57,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             editor.putInt("skdog87AtNaverDotCom",0);
             editor.putInt("hwangcheol1240AtGmailDotCom",0);
             editor.putInt("hwangcheol1241AtGmailDotCom",0);
+            //editor.putStringSet("blackImage",new HashSet<String>());
             editor.commit();
         }
     };

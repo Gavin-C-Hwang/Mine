@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 public class MyUtil {
     public static String htmlCode = "";
-
+    public static String currnentUrl = "";
     public static HashMap<String,String> skdog87AtNaverDotCom = new HashMap<String,String>();
     public static HashMap<String,String> hwangcheol1240AtGmailDotCom = new HashMap<String,String>();
     public static HashMap<String,String> hwangcheol1241AtGmailDotCom = new HashMap<String,String>();
@@ -20,4 +20,5 @@ public class MyUtil {
         hwangcheol1241AtGmailDotCom.put("blogName","merl");
 
     }
+
 }

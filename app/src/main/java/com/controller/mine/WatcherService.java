@@ -38,7 +38,8 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class WatcherService extends Service {
-
+    WatcherService ws;
+    Intent it;
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -49,10 +50,12 @@ public class WatcherService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        ws = this;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        it = intent;
         new MyAsyncThread().execute("","","");
         return super.onStartCommand(intent, flags, startId);
     }
@@ -122,7 +125,7 @@ public class WatcherService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 sendNotification("끝","끝",urls.length);
             }
-
+            ws.stopService(it);
             return "";
         }
 

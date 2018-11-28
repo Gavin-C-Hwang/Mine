@@ -12,12 +12,38 @@
     android:paddingRight="30dp"
     android:paddingTop="30dp">
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/uploadBtns"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/btnDaumCafe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daum" />
+        <Button
+            android:id="@+id/btnFmKorea"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FmKorea" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/blogs"
+        android:layout_below="@+id/uploadBtns"
+        android:orientation="vertical">
+    </LinearLayout>
+
     <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="22dp"
+        android:layout_below="@+id/blogs"
         android:text="" />
 
     <TextView
@@ -63,20 +89,13 @@
         android:layout_alignBaseline="@+id/btnStartService"
         android:layout_marginTop="30dp"
         android:text="서비스 종료하기" />
-    <TextView
-        android:id="@+id/blackImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/btnEndService"
-        android:text=""
-         />
+
     <TextView
         android:id="@+id/sendResult"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/blackImage"
+        android:layout_below="@+id/btnEndService"
         android:text=""
         />
 </RelativeLayout>

@@ -14,16 +14,17 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.JsonReader;
 import android.util.Log;
-import android.widget.Toast;
 
-import org.json.JSONArray;
+import com.com.entity.mine.Blog;
+import com.scrapper.mine.DaumCafeScrapper;
+import com.scrapper.mine.Scrapper;
+
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -67,11 +68,11 @@ public class WatcherService extends Service {
 
 
     private class MyAsyncThread extends AsyncTask<String,String,String> {
-        HashMap<String,String> curBlog = null;
+        Blog curBlog = null;
         @Override
         protected String doInBackground(String... strings) {
-            Scrapper scr = new Scrapper();
-            MyUtil.initData();
+            Scrapper scr = new DaumCafeScrapper();
+
             String[] urls = null;
 
             try{urls = scr.getTodayDetailUrls();}catch(Exception err){}
@@ -79,29 +80,15 @@ public class WatcherService extends Service {
             for(int i = 0; i<urls.length; i++){
                 try {
                     MyUtil.currnentUrl = "("+i+") "+urls[i];
-                    String[] contents = scr.getCafeBoardDetailHtml(urls[i]);
+                    String[] contents = scr.getItemHtml(urls[i]);
+                    //get curBlog
 
+                    //update blog uploaded count
                     SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
                     SharedPreferences.Editor editor = pref.edit();// editor에 put 하기
-
-                    int v1 = pref.getInt("skdog87AtNaverDotCom",0);
-                    int v2 = pref.getInt("hwangcheol1240AtGmailDotCom",0);
-                    int v3 = pref.getInt("hwangcheol1241AtGmailDotCom",0);
-                    if(i%3==0){
-                        editor.putInt("skdog87AtNaverDotCom",v1+1);
-                        editor.commit();
-                        curBlog = MyUtil.skdog87AtNaverDotCom;
-                    }else if(i%3==1){
-                        editor.putInt("hwangcheol1240AtGmailDotCom",v2+1);
-                        editor.commit();
-                        curBlog = MyUtil.hwangcheol1240AtGmailDotCom;
-                    }else if(i%3==2){
-                        editor.putInt("hwangcheol1241AtGmailDotCom",v3+1);
-                        editor.commit();
-                        curBlog = MyUtil.hwangcheol1241AtGmailDotCom;
-                    }else ;
-
-
+                    int itemCnt = pref.getInt(curBlog.getBlogName(),0);
+                    editor.putInt(curBlog.getBlogName(),itemCnt+1);
+                    editor.commit();
 
                     String boardItem = getBoardItem(contents[1]);
                     String status = getSendTistoryResult(contents[0],boardItem);
@@ -110,14 +97,14 @@ public class WatcherService extends Service {
                     editor.putStringSet("sendResult",set);
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        sendNotification(curBlog.get("blogName"),urls[i],i);
+                        sendNotification(curBlog.getBlogName(),urls[i],i);
                     }
-                    Thread.sleep(20000l);
+                    Thread.sleep(10000l);
                 } catch (Exception e) {
                     SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
                     SharedPreferences.Editor editor = pref.edit();// editor에 put 하기
                     Set<String> set = pref.getStringSet("sendResult", new HashSet<String>());
-                    set.add(e.getMessage() +"("+i+")\n");
+                    set.add(e.getMessage() +"("+urls[i]+")\n");
                 }
 
             }
@@ -152,8 +139,8 @@ public class WatcherService extends Service {
             if("".equals(title) || "".equals(content)) return "empty";
             String reqUrl = "https://www.tistory.com/apis/post/write";
             String visibility = "0";
-            String blogName = curBlog.get("blogName");
-            String access_token = curBlog.get("access_token");
+            String blogName = curBlog.getBlogName();
+            String access_token = curBlog.getAccess_token();
             String data = String.format("access_token=%s&visibility=%s&blogName=%s&title=%s&content=%s&output=%s&"
                     ,access_token,visibility,blogName,title,content,"json");
             try{
@@ -270,8 +257,8 @@ public class WatcherService extends Service {
         }
         private String uploadFileToTistory(String file, String src) {
             String reqUrl = "https://www.tistory.com/apis/post/attach";
-            String blogName = curBlog.get("blogName");
-            String access_token = curBlog.get("access_token");
+            String blogName = curBlog.getBlogName();
+            String access_token = curBlog.getAccess_token();
             HashMap<String, String> param = new HashMap<String, String>();
             param.put("access_token",access_token);
             param.put("blogName",blogName);

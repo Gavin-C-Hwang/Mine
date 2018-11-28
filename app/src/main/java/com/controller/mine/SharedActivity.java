@@ -1,18 +1,12 @@
 package com.controller.mine;
 
 import android.app.Activity;
-import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.AppCompatActivity;
 import android.util.JsonReader;
 import android.util.Log;
 import android.view.View;
@@ -23,12 +17,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.com.entity.mine.Blog;
+import com.scrapper.mine.DaumCafeScrapper;
+import com.scrapper.mine.Scrapper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONStringer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -42,27 +38,23 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.net.ssl.HttpsURLConnection;
-
 public class SharedActivity extends Activity {
     private SharedActivity activity;
-    public EditText etTag;
-    public EditText etTitle;
-    public EditText etHtml;
-
+    private EditText etTag;
+    private EditText etTitle;
+    private EditText etHtml;
+    private Scrapper sc;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_shared);
-        MyUtil.initData();
+        sc = new DaumCafeScrapper();
         activity = this;
 
         etTag = (EditText)findViewById(R.id.etTag);
@@ -76,12 +68,12 @@ public class SharedActivity extends Activity {
         btn70th.setOnClickListener(btn70thListener);
         btnMerl.setOnClickListener(btnMerlListener);
         SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
-        btnTech.setText(btnTech.getText() + " " + pref.getInt("skdog87AtNaverDotCom",0));
-        btn70th.setText(btn70th.getText() + " " + pref.getInt("hwangcheol1240AtGmailDotCom",0));
-        btnMerl.setText(btnMerl.getText() + " " + pref.getInt("hwangcheol1241AtGmailDotCom",0));
-        new CategoryTask((RadioGroup)findViewById(R.id.radioGroup1)).execute(MyUtil.skdog87AtNaverDotCom.get("blogName"), MyUtil.skdog87AtNaverDotCom.get("access_token"));
-        new CategoryTask((RadioGroup)findViewById(R.id.radioGroup2)).execute(MyUtil.hwangcheol1240AtGmailDotCom.get("blogName"), MyUtil.hwangcheol1240AtGmailDotCom.get("access_token"));
-        new CategoryTask((RadioGroup)findViewById(R.id.radioGroup3)).execute(MyUtil.hwangcheol1241AtGmailDotCom.get("blogName"), MyUtil.hwangcheol1241AtGmailDotCom.get("access_token"));
+        btnTech.setText(btnTech.getText() + " " + pref.getInt("tech-tech",0));
+        btn70th.setText(btn70th.getText() + " " + pref.getInt("70th",0));
+        btnMerl.setText(btnMerl.getText() + " " + pref.getInt("merl",0));
+        new CategoryTask((RadioGroup)findViewById(R.id.radioGroup1)).execute(sc.getCurBlog("tech-tech").getBlogName(), sc.getCurBlog("tech-tech").getAccess_token());
+        new CategoryTask((RadioGroup)findViewById(R.id.radioGroup2)).execute(sc.getCurBlog("70th").getBlogName(), sc.getCurBlog("70th").getAccess_token());
+        new CategoryTask((RadioGroup)findViewById(R.id.radioGroup3)).execute(sc.getCurBlog("merl").getBlogName(), sc.getCurBlog("merl").getAccess_token());
         new BoardItemThread().execute(getIntent().getStringExtra(Intent.EXTRA_TEXT),"","");
     }
 
@@ -127,23 +119,13 @@ public class SharedActivity extends Activity {
     View.OnClickListener ivListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-
             SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
             SharedPreferences.Editor editor = pref.edit();// editor에 put 하기
-            Set<String> hs = pref.getStringSet("blackImage",new HashSet<String>());
-            Document doc = Jsoup.parse(v.getContentDescription().toString());
-            String src = doc.select("img").attr("src");
-            hs.add(src);
-            editor.putStringSet("blackImage",hs);
-            editor.commit();
-
-            Log.d("myTag",MyUtil.htmlCode);
+            //delete clicked img src
             MyUtil.htmlCode = MyUtil.htmlCode.replace(v.getContentDescription().toString(),"");
-            Log.d("myTag",MyUtil.htmlCode);
             LinearLayout ll = (LinearLayout)findViewById(R.id.images);
             ll.removeView(v);
             etHtml.setText(MyUtil.htmlCode);
-
         }
     };
 
@@ -220,39 +202,39 @@ public class SharedActivity extends Activity {
     private class MyAsyncThread extends AsyncTask<String,String,String>{
 
         private int maxItemCnt = 30;
-        HashMap<String,String> curBlog = null;
+        Blog curBlog = null;
         SharedPreferences pref = getSharedPreferences("pref", MODE_PRIVATE);
 
 
-        private HashMap<String,String> getBlog(String btn){
+        private Blog getBlog(String btn){
             SharedPreferences.Editor editor = pref.edit();// editor에 put 하기
 
-            int v1 = pref.getInt("skdog87AtNaverDotCom",0);
-            int v2 = pref.getInt("hwangcheol1240AtGmailDotCom",0);
-            int v3 = pref.getInt("hwangcheol1241AtGmailDotCom",0);
+            int v1 = pref.getInt("tech-tech",0);
+            int v2 = pref.getInt("70th",0);
+            int v3 = pref.getInt("merl",0);
 
             if(v1>=maxItemCnt && v2>=maxItemCnt && v3>=maxItemCnt ){
-                editor.putInt("skdog87AtNaverDotCom",0);
-                editor.putInt("hwangcheol1240AtGmailDotCom",0);
-                editor.putInt("hwangcheol1241AtGmailDotCom",0);
+                editor.putInt("tech-tech",0);
+                editor.putInt("70th",0);
+                editor.putInt("merl",0);
                 editor.commit();
                 return null;
             }
 
             if(v1<maxItemCnt && "btnTech".equals(btn) ){
-                editor.putInt("skdog87AtNaverDotCom",v1+1);
+                editor.putInt("tech-tech",v1+1);
                 editor.commit();
-                return MyUtil.skdog87AtNaverDotCom;
+                return sc.getCurBlog("tech-tech");
             }
             if(v2<maxItemCnt && "btn70th".equals(btn)  ){
-                editor.putInt("hwangcheol1240AtGmailDotCom",v2+1);
+                editor.putInt("70th",v2+1);
                 editor.commit();
-                return MyUtil.hwangcheol1240AtGmailDotCom;
+                return sc.getCurBlog("70th");
             }
             if(v3<maxItemCnt && "btnMerl".equals(btn) ){
-                editor.putInt("hwangcheol1241AtGmailDotCom",v3+1);
+                editor.putInt("merl",v3+1);
                 editor.commit();
-                return MyUtil.hwangcheol1241AtGmailDotCom;
+                return sc.getCurBlog("merl");
             }
             return null;
         }
@@ -280,8 +262,8 @@ public class SharedActivity extends Activity {
             if("".equals(title) || "".equals(content)) return "empty";
             String reqUrl = "https://www.tistory.com/apis/post/write";
             String visibility = "2";
-            String blogName = curBlog.get("blogName");
-            String access_token = curBlog.get("access_token");
+            String blogName = curBlog.getBlogName();
+            String access_token = curBlog.getAccess_token();
             String data = String.format("access_token=%s&visibility=%s&blogName=%s&title=%s&content=%s&tag=%s&output=%s&category=%s"
                     ,access_token,visibility,blogName,title,content,tag,"json",getCategoryID(category));
             try{
@@ -300,8 +282,8 @@ public class SharedActivity extends Activity {
         }
         private String getCategoryID(String categoryName){
             String reqUrl = "https://www.tistory.com/apis/category/list";
-            String blogName = curBlog.get("blogName");
-            String access_token = curBlog.get("access_token");
+            String blogName = curBlog.getBlogName();
+            String access_token = curBlog.getAccess_token();
             String data = String.format("access_token=%s&blogName=%s&output=%s"
                     ,access_token,blogName,"json");
             reqUrl = reqUrl+"?"+data;
@@ -430,8 +412,8 @@ public class SharedActivity extends Activity {
         }
         private String uploadFileToTistory(String file, String src) {
             String reqUrl = "https://www.tistory.com/apis/post/attach";
-            String blogName = curBlog.get("blogName");
-            String access_token = curBlog.get("access_token");
+            String blogName = curBlog.getBlogName();
+            String access_token = curBlog.getAccess_token();
             HashMap<String, String> param = new HashMap<String, String>();
             param.put("access_token",access_token);
             param.put("blogName",blogName);

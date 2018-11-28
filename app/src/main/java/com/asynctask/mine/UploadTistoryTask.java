@@ -59,7 +59,7 @@ public class UploadTistoryTask extends AsyncTask<String,String,String> {
             String[] urls = sc.getTodayDetailUrls();
             for(int i = 0; i<urls.length; i++){
                 curBlog = sc.getCurBlog(i);
-                publishProgress(uploadResult,curBlog.getBlogName()+":"+urls[i]+" try to get the detail html code.");
+                publishProgress(curBlog.getBlogName()+":"+urls[i]+" try to get the detail html code.",uploadResult);
                 String[] script = sc.getItemHtml(urls[i]);
                 String content = getContentsAfterImageChanged(script[1]);
                 publishProgress(curBlog.getBlogName()+":"+urls[i]+" upload to tistory",uploadResult);

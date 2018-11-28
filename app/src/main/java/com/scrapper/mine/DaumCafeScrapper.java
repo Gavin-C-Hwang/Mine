@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 public class DaumCafeScrapper implements Scrapper{
-    private final int itemCount = 90;
+    private final int itemCount = 120;
     private String[][] arBoardUrlList = {
             {"http://cafe.daum.net/_c21_/bbs_list?grpid=aVeZ&fldid=6yIR&listnum=200"
                     ,"http://cafe.daum.net/_c21_/bbs_list?grpid=mEr9&fldid=FGFP&listnum=100"
@@ -39,6 +39,8 @@ public class DaumCafeScrapper implements Scrapper{
         hmDaumCafeBlog.put("tech-tech",new Blog("tech-tech","d776696567a6c6617afc47cacfc0681b_d5276a26c6d216ed5798d06c72407fec"));
         hmDaumCafeBlog.put("70th",new Blog("70th","2fd34213c527414eb9e5a002837fdf21_f4458c4a94377b83ce029fab415eb0e0"));
         hmDaumCafeBlog.put("merl",new Blog("merl","d5e2f993ccf9b94d6bb0ebf009510c3e_8e9373de78f375297d79887a43f4472e"));
+        hmDaumCafeBlog.put("invit",new Blog("invit","a210ad5ddc08105f16fd874443af23c7_e01d52d9067750a09525791871d4ecf7"));
+
 
     }
 

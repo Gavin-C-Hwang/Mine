@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.com.entity.mine.Blog;
 import com.controller.mine.MultipartUpload;
+import com.controller.mine.MyUtil;
 import com.scrapper.mine.Scrapper;
 
 import org.json.JSONObject;
@@ -53,26 +54,29 @@ public class UploadTistoryTask extends AsyncTask<String,String,String> {
     @Override
     protected String doInBackground(String... strings) {
 
-        try {
+
             //get Todays urls
             publishProgress("try to getTodayDetailUrls...",uploadResult);
             String[] urls = sc.getTodayDetailUrls();
             for(int i = 0; i<urls.length; i++){
-                curBlog = sc.getCurBlog(i);
-                publishProgress(curBlog.getBlogName()+":"+urls[i]+" try to get the detail html code.",uploadResult);
-                String[] script = sc.getItemHtml(urls[i]);
-                String content = getContentsAfterImageChanged(script[1]);
-                publishProgress(curBlog.getBlogName()+":"+urls[i]+" upload to tistory",uploadResult);
-                uploadResult = i+":"+getSendTistoryResult(script[0],content)+"\n"+uploadResult;
-                publishProgress(uploadResult,"");
-                prefWork(curBlog,i);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    sendNotification(curBlog.getBlogName(), uploadResult, i);
+                try {
+                    curBlog = sc.getCurBlog(i);
+                    publishProgress(curBlog.getBlogName()+":"+urls[i]+" try to get the detail html code.",uploadResult);
+                    String[] script = sc.getItemHtml(urls[i]);
+                    String content = getContentsAfterImageChanged(script[1]);
+                    publishProgress(curBlog.getBlogName()+":"+urls[i]+" upload to tistory",uploadResult);
+                    String result = getSendTistoryResult(script[0],content);
+                    uploadResult = i+":"+ ("empty".equals(result)?urls[i]:result)+"\n"+uploadResult;
+                    publishProgress(uploadResult,"");
+                    prefWork(curBlog,i);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        sendNotification(curBlog.getBlogName(), uploadResult, i);
+                    }
+                } catch (Exception e) {
+                    uploadResult = uploadResult+e.getMessage() +"\n";
                 }
             }
-        } catch (Exception e) {
-            uploadResult = uploadResult+e.getMessage() +"\n";
-        }
+
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             sendNotification("끝","끝",0);
@@ -119,11 +123,12 @@ public class UploadTistoryTask extends AsyncTask<String,String,String> {
         try{content =  URLEncoder.encode(content,"UTF-8");}catch(Exception er){;}
         if("".equals(title) || "".equals(content)) return "empty";
         String reqUrl = "https://www.tistory.com/apis/post/write";
-        String visibility = "0";
+        String visibility = "3";
         String blogName = curBlog.getBlogName();
         String access_token = curBlog.getAccess_token();
-        String data = String.format("access_token=%s&visibility=%s&blogName=%s&title=%s&content=%s&output=%s&"
-                ,access_token,visibility,blogName,title,content,"json");
+        String category = curBlog.getDefCtgry();
+        String data = String.format("access_token=%s&visibility=%s&blogName=%s&title=%s&content=%s&category=%s&output=%s&"
+                ,access_token,visibility,blogName,title,content,category,"json");
         try{
             HttpURLConnection conn = initConn(reqUrl,data,"POST");
             InputStreamReader responseBodyReader =  new InputStreamReader(conn.getInputStream(), "UTF-8");
@@ -179,12 +184,16 @@ public class UploadTistoryTask extends AsyncTask<String,String,String> {
         for(Element node : elms){
             String nodeSrc = node.attr("src");
             String changedImg = replacedImg(node);
-            html = html.replace(nodeSrc, changedImg);
+            if("deleteNode".equals(changedImg)){
+                html = html.replace(node.toString(), "");
+            }else{
+                html = html.replace(nodeSrc, changedImg);
+            }
         }
         return html;
     }
-    private void fileDownload(String url){
-
+    private long fileDownload(String url){
+        long result = 0;
         Bitmap bm = null;
         InputStream in = null;
         OutputStream os = null;
@@ -199,19 +208,28 @@ public class UploadTistoryTask extends AsyncTask<String,String,String> {
             os.flush();
             os.close();
             in.close();
+
+            File f = new File(activity.getFilesDir(),"downimage");
+            result = f.length();
         }catch(Exception er){
             Log.e("myTag",er.toString());
         }
+        return result;
     }
     private String replacedImg(Element imgTag){
         //get src addr
         String src = imgTag.attr("src");
-        Log.d("myTag",src);
         //download file
-        fileDownload(src);
+        long fLength = fileDownload(src);
+        for(int a : MyUtil.arInvalidImg){
+            if(a == fLength){
+                return "deleteNode";
+            }
+        }
         //upload to blog
-        String replacer = uploadFileToTistory(activity.getFilesDir()+File.separator+"downimage",src);
-        Log.d("myTag",replacer);
+        String filePath = activity.getFilesDir()+File.separator+"downimage";
+
+        String replacer = uploadFileToTistory(filePath,src);
         //get replaced text
         return replacer;
     }
@@ -225,7 +243,6 @@ public class UploadTistoryTask extends AsyncTask<String,String,String> {
         param.put("output","json");
         HashMap<String, String> files = new HashMap<String, String>();
         files.put("uploadedfile",file);
-        Log.d("myTag",file);
         JSONObject json = null;
         try {
 

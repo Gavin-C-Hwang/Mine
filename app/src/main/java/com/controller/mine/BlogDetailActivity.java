@@ -147,7 +147,7 @@ public class BlogDetailActivity extends AppCompatActivity implements AfterWork {
             int viewId = rgBlogDetailCategory.getCheckedRadioButtonId();
             RadioButton rb = (RadioButton)findViewById(viewId);
             String selectedText = rb.getText().toString();
-            BlogItem blogItem = new BlogItem(id,title,content,"0","0");
+            BlogItem blogItem = new BlogItem(id,"삭제_"+title,content,"0","0");
             new UpdateTistory(BlogDetailActivity.this, blog, blogItem).execute();
         }
     };
@@ -157,6 +157,7 @@ public class BlogDetailActivity extends AppCompatActivity implements AfterWork {
         public void onClick(View v) {
             //delete clicked img src
             content = content.replace(v.getContentDescription().toString(),"");
+            content+= "<div style=\"display:none\">"+v.getContentDescription().toString()+"</div>";
             llBlogDetailImages.removeView(v);
             etHtml.setText(content);
             initWebView();

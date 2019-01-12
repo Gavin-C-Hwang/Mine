@@ -23,7 +23,7 @@ public class FmKoreaScrapper implements Scrapper {
     private HashMap<String,Blog> hmFmBlog = new HashMap<String,Blog>();
 
     public FmKoreaScrapper() {
-        hmFmBlog.put("5789",new Blog("5789","2af41212b92adcc20b2444740df1ad60_48cfed51aa0231c00b8691c8d4f4e878"));
+        //hmFmBlog.put("5789",new Blog("5789","2af41212b92adcc20b2444740df1ad60_48cfed51aa0231c00b8691c8d4f4e878"));
         //hmFmBlog.put("everyissues",new Blog("everyissues","2af41212b92adcc20b2444740df1ad60_48cfed51aa0231c00b8691c8d4f4e878"));
         //hmFmBlog.put("ace4",new Blog("ace4","2af41212b92adcc20b2444740df1ad60_48cfed51aa0231c00b8691c8d4f4e878"));
         //hmFmBlog.put("funnybest",new Blog("funnybest","2af41212b92adcc20b2444740df1ad60_48cfed51aa0231c00b8691c8d4f4e878"));
@@ -53,7 +53,9 @@ public class FmKoreaScrapper implements Scrapper {
     }
 
     /* scrape todays url array */
-    public String[] getTodayDetailUrls() throws Exception{
+    public String[] getTodayDetailUrls(){
+
+        try{
         ArrayList<Item> arItem = new ArrayList<>();
 
         for(int i = 28; i<=41; i++){
@@ -94,6 +96,9 @@ public class FmKoreaScrapper implements Scrapper {
             result[j] = arItem.get(j).getUrl();
         }
         return result;
+        }catch(Exception er){
+            return new String[0];
+        }
     }
 
     /* get detail item html code from url */

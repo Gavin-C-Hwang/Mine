@@ -41,7 +41,7 @@ public class MultipartUpload {
     public MultipartUpload(String requestURL, String charset) throws IOException {
         this.charset = charset;
 
-        boundary = "===" + System.currentTimeMillis() + "===";
+        boundary = "===" + System.currentTimeMillis() + requestURL+"===";
         tail = LINE_END + TWOHYPEN + boundary + TWOHYPEN + LINE_END;
         URL url = new URL(requestURL);
         httpConn = (HttpURLConnection) url.openConnection();

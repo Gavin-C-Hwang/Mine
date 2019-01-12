@@ -66,7 +66,11 @@ public class BlogItem{
     }
 
     public String getContent() {
-        return content;
+        return content.replaceAll("&amp;","&")
+                .replaceAll("&nbsp;"," ")
+                .replaceAll("&quot;","\"")
+                .replaceAll("&lt;","<")
+                .replaceAll("&gt;",">");
     }
 
     public Bitmap getFirstImg() {

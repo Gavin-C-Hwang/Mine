@@ -2,8 +2,10 @@ package com.controller.mine;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -17,6 +19,11 @@ import com.scrapper.mine.DaumCafeScrapper;
 import com.scrapper.mine.FmKoreaScrapper;
 import com.scrapper.mine.Scrapper;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -82,6 +89,42 @@ public class MainActivity extends AppCompatActivity {
             llBlogButtons.addView(btn);
         }
     }
+    private void fileDownload(String url, int cnt){
+
+        Bitmap bm = null;
+        InputStream in = null;
+        OutputStream os = null;
+        try{
+            in = new URL(url).openStream();
+            File folderPath = getFilesDir();
+            String path = folderPath.getAbsolutePath();
+            os = new FileOutputStream(new File(getFilesDir(),"downimage"+(cnt)));
+            byte[] buf = new byte[1024];
+            int len = 0;
+            int sum = 0;
+            while ((len = in.read(buf)) > 0) {
+                os.write(buf, 0, len);
+                sum+=buf[0];
+            }
+            os.flush();
+            os.close();
+            in.close();
+
+            File f = new File(getFilesDir(),"downimage"+(cnt));
+            Log.d("myTag",url+"downimage"+(cnt)+" f.length() "+f.getName()+"  "+f.length());
+            Log.d("myTag"," sum "+sum);
+        }catch(Exception er){
+            Log.e("myTag",er.toString());
+        }
+    }
+
+    Runnable run = new Runnable() {
+        @Override
+        public void run() {
+            fileDownload("http://cfile279.uf.daum.net/image/2176E04958F1FBE032CB10",0);
+        }
+    };
+
 
     View.OnClickListener btnStartServiceListener = new View.OnClickListener() {
         @Override
@@ -96,8 +139,12 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             //Intent intent = new Intent(getApplicationContext(),WatcherService.class);
             //stopService(intent);
+            new Thread(run).start();
         }
     };
+
+
+
 
     View.OnClickListener btnDaumCafeListener = new View.OnClickListener() {
         @Override

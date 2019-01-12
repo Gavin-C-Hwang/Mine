@@ -11,7 +11,7 @@ import java.util.Iterator;
  * */
 public interface Scrapper {
     /* scrape todays url array */
-    public String[] getTodayDetailUrls() throws Exception;
+    public String[] getTodayDetailUrls();
     /* get detail item html code from url */
     public String[] getItemHtml(String url) throws Exception;
     /* get blogs Info */
